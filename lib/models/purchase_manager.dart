@@ -9,14 +9,14 @@ class PurchaseManager {
   static const String _prefKey = 'premium_status';
   final InAppPurchase _iap = InAppPurchase.instance;
   late StreamSubscription<List<PurchaseDetails>> _subscription;
-  
+
   bool _isPremium = false;
   bool get isPremium => _isPremium;
 
   Future<void> initialize() async {
     try {
       debugPrint('Initializing purchases...');
-      
+
       // 1. Load saved purchase status
       _isPremium = await _checkPurchaseStatus();
       debugPrint('Initial premium status: $_isPremium');
@@ -36,9 +36,6 @@ class PurchaseManager {
       await _getProducts();
 
       // 5. For testing: Add static response in emulator
-      if (kDebugMode) {
-        debugPrint('Running in debug mode - enabling test purchases');
-      }
     } catch (e) {
       debugPrint('Initialization error: $e');
     }
@@ -58,11 +55,11 @@ class PurchaseManager {
     try {
       debugPrint('Loading products...');
       final response = await _iap.queryProductDetails({_premiumProductId});
-      
+
       if (response.notFoundIDs.isNotEmpty) {
         debugPrint('Missing products: ${response.notFoundIDs}');
       }
-      
+
       if (response.productDetails.isNotEmpty) {
         debugPrint('Found product: ${response.productDetails.first}');
       } else {
@@ -76,7 +73,7 @@ class PurchaseManager {
   Future<void> buyPremium() async {
     try {
       debugPrint('Starting purchase flow...');
-      
+
       final response = await _iap.queryProductDetails({_premiumProductId});
       if (response.productDetails.isEmpty) {
         debugPrint('Product not available');
@@ -111,7 +108,7 @@ class PurchaseManager {
   Future<void> _verifyPurchase(PurchaseDetails purchase) async {
     try {
       debugPrint('Verifying purchase: ${purchase.productID}');
-      
+
       if (purchase.pendingCompletePurchase) {
         await _iap.completePurchase(purchase);
         debugPrint('Purchase completed');

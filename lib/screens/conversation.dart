@@ -109,36 +109,38 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
-  void _showPremiumDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Premium Content'),
-        content: const Text(
-            'Unlock all premium conversations with a one-time purchase.'),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          TextButton(
-            child: const Text('Purchase'),
-            onPressed: () {
-              Navigator.pop(context);
-              _buyPremium();
-            },
-          ),
-          TextButton(
-            child: const Text('Restore'),
-            onPressed: () {
-              Navigator.pop(context);
-              _restorePurchases();
-            },
-          ),
-        ],
+void _showPremiumDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Premium Content', style: Theme.of(context).textTheme.titleLarge),
+      content: Text(
+        'Unlock all premium conversations with a one-time purchase.',
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
-    );
-  }
+      actions: [
+        TextButton(
+          child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        ElevatedButton( 
+          child: const Text('Purchase'),
+          onPressed: () {
+            Navigator.pop(context);
+            _buyPremium();
+          },
+        ),
+        TextButton(
+          child: Text('Restore', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+          onPressed: () {
+            Navigator.pop(context);
+            _restorePurchases();
+          },
+        ),
+      ],
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -200,22 +202,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     );
                   },
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    await Provider.of<PurchaseManager>(context, listen: false)
-                        .buyPremium();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Purchase initiated')),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: ${e.toString()}')),
-                    );
-                  }
-                },
-                child: const Text('TEST PURCHASE (DEBUG ONLY)'),
               ),
             ],
           ),

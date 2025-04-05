@@ -1,4 +1,4 @@
-# Flirt Coach
+# Alfa Chat
 
 This is a flirt bot chatting app.
 

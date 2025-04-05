@@ -4,7 +4,7 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     
     <application
-        android:label="Flirt Coach"
+        android:label="AlfaChat"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
