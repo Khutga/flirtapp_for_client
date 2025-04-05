@@ -16,7 +16,7 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "com.alphachat.flirtcoach"
-    compileSdk = 34
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -41,8 +41,8 @@ android {
         applicationId = "com.alphachat.flirtcoach"
         minSdk = 21
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.0.5"
     }
 
     buildTypes {

@@ -38,14 +38,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Future<void> _initializePurchase() async {
-    // Check if purchases are available
     final bool isAvailable = await _iap.isAvailable();
     if (!isAvailable) return;
-
-    // Restore previous purchases
     await _restorePurchases();
-
-    // Listen to purchase updates
     _subscription = _iap.purchaseStream.listen(_handlePurchaseUpdate);
   }
 
@@ -68,8 +63,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Future<void> _verifyPurchase(PurchaseDetails purchase) async {
-    // In production, verify purchase with your server
-    // For testing, just complete the purchase
     if (purchase.pendingCompletePurchase) {
       await _iap.completePurchase(purchase);
     }
@@ -109,74 +102,87 @@ class _ConversationScreenState extends State<ConversationScreen> {
     }
   }
 
-void _showPremiumDialog() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Premium Content', style: Theme.of(context).textTheme.titleLarge),
-      content: Text(
-        'Unlock all premium conversations with a one-time purchase.',
-        style: Theme.of(context).textTheme.bodyMedium,
+  void _showPremiumDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Text('Unlock Premium Conversations',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 10),
+            Text(
+              'Gain access to all exclusive conversations and enhance your flirting skills.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: const Text('Unlock All Premium'),
+              onPressed: () {
+                Navigator.pop(context);
+                _buyPremium();
+              },
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              child: Text('Restore Purchases',
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+              onPressed: () {
+                Navigator.pop(context);
+                _restorePurchases();
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: Text('Cancel', style: TextStyle(color: Colors.grey)),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        ElevatedButton( 
-          child: const Text('Purchase'),
-          onPressed: () {
-            Navigator.pop(context);
-            _buyPremium();
-          },
-        ),
-        TextButton(
-          child: Text('Restore', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-          onPressed: () {
-            Navigator.pop(context);
-            _restorePurchases();
-          },
-        ),
-      ],
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          elevation: 1,
+          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+          title: Text('Conversations', style: TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.settings_outlined, color: Theme.of(context).iconTheme.color),
+            onPressed: () => Navigator.pushNamed(context, 'settings_screen'),
+          ),
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 8.0),
+              padding: const EdgeInsets.only(right: 15.0),
               child: IconButton(
-                icon: const Icon(
-                  Icons.person_4_sharp,
-                  color: Colors.white,
-                ),
+                icon: Icon(Icons.person_outline_rounded, color: Theme.of(context).iconTheme.color, size: 28),
                 onPressed: () => Navigator.pushNamed(context, 'profile_screen'),
               ),
             ),
           ],
-          centerTitle: true,
-          title: const Text('Conversations'),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.settings,
-              color: Colors.white,
-            ),
-            onPressed: () => Navigator.pushNamed(context, 'settings_screen'),
-          ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
-              const Text('Messages'),
-              const SizedBox(height: 10),
+              Text('Your Messages', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w500)),
+              const SizedBox(height: 15),
               Expanded(
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -185,20 +191,23 @@ void _showPremiumDialog() {
                     final conversation = conversations[i];
                     final isPremiumContent = conversation.isPremium;
 
-                    return Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, child) {
-                        final darkMode = themeProvider.isDarkMode;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Consumer<ThemeProvider>(
+                        builder: (context, themeProvider, child) {
+                          final darkMode = themeProvider.isDarkMode;
 
-                        if (isPremiumContent && !_isPremium) {
-                          return _buildPremiumLockedChatBox(
-                              conversation, darkMode);
-                        } else {
-                          return ChatBox(
-                            data: conversation,
-                            darkMode: darkMode,
-                          );
-                        }
-                      },
+                          if (isPremiumContent && !_isPremium) {
+                            return _buildPremiumLockedChatBox(
+                                conversation, darkMode);
+                          } else {
+                            return ChatBox(
+                              data: conversation,
+                              darkMode: darkMode,
+                            );
+                          }
+                        },
+                      ),
                     );
                   },
                 ),
@@ -211,27 +220,48 @@ void _showPremiumDialog() {
   }
 
   Widget _buildPremiumLockedChatBox(Conversation conversation, bool darkMode) {
-    return Opacity(
-      opacity: 0.6,
-      child: Stack(
-        children: [
-          ChatBox(
+    return Stack(
+      children: [
+        Opacity(
+          opacity: 0.7,
+          child: ChatBox(
             data: conversation,
             darkMode: darkMode,
           ),
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.3),
-              child: Center(
-                child: IconButton(
-                  icon: const Icon(Icons.lock, size: 40, color: Colors.white),
-                  onPressed: _showPremiumDialog,
+        ),
+        Positioned.fill(
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _showPremiumDialog,
+              borderRadius: BorderRadius.circular(12), 
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock_rounded, size: 25, color: Colors.white),
+                     SizedBox(height: 4),
+                      Text(
+                        'Premium Content',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Tap to Unlock',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
